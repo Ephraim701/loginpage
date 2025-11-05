@@ -1,27 +1,22 @@
+from flask import Flask
 import requests
-import datetime
-import time
-import random
 
-SCRAPER_URLS = [
-    "https://linkage.ng/news.php",
-    "https://linkage.ng/newsc.php"
-]
+app = Flask(__name__)
 
+@app.route('/')
 def ping_scrapers():
-    print(f"--- Cron Run: {datetime.datetime.now()} ---")
-    for url in SCRAPER_URLS:
-        print(f"Starting: {url}")
+    urls = [
+        "https://linkage.ng/news.php",
+    "https://linkage.ng/newsc.php"
+    ]
+    results = []
+    for url in urls:
         try:
-            response = requests.get(url, timeout=600)  # wait up to 10 minutes
-            print(f"✅ Completed {url} -> Status: {response.status_code}")
-        except requests.exceptions.Timeout:
-            print(f"⚠️ Timeout: {url} took too long (>10 mins)")
+            r = requests.get(url, timeout=600)
+            results.append(f"{url} → {r.status_code}")
         except Exception as e:
-            print(f"❌ Error pinging {url}: {e}")
+            results.append(f"{url} → error: {e}")
+    return "<br>".join(results)
 
-        # Optional delay (2–5 seconds) between scrapers
-        time.sleep(random.randint(2, 5))
-
-if __name__ == "__main__":
-    ping_scrapers()
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
